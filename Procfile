@@ -1,1 +1,1 @@
-worker: nodemon
+web: nodemon
