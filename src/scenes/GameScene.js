@@ -438,7 +438,7 @@ class GameScene extends Phaser.Scene {
 
         this.music = this.sound.add('soundtrack', {volume: 0.5});
         this.music.loop = true;
-        //this.music.play();
+        this.music.play();
 
         this.matter.add.sprite(4800, 320, 'launcher', null, { isSensor: true, label: "upgrade"}).setIgnoreGravity(true);
         new Ammo ({
