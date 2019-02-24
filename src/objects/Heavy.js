@@ -1,11 +1,13 @@
 import Death from './Death.js';
+import Boom from './Boom.js';
+
 export default class Heavy extends Phaser.Physics.Matter.Sprite {
     constructor(config) {
         super(config.scene.matter.world, config.x, config.y, config.key, config.frame, config.option);
         config.scene.add.existing(this);
-        this.health = 150;
+        this.health = 200;
         this.setScale(1.3);
-        this.setDepth(9);
+        this.setDepth(8);
         this.setFixedRotation(true);
         this.target = config.scene.player;
         this.action = 0;
@@ -16,23 +18,33 @@ export default class Heavy extends Phaser.Physics.Matter.Sprite {
         this.dist = Math.abs(this.target.x - this.x);
         this.height = Math.abs(this.target.y - this.y);
         this.jump = true;
-        this.shock = this.scene.add.sprite(1100, 690, "shock").setScale(2).setOrigin(0.5, 1).setAlpha(0);
-        this.shock.setDepth(10);
-
-        /*this.sensorR = this.scene.matter.add.sprite(0, 0, 'sensor', null, { 
-            isSensor: true, 
-            label: "sensorhit",
-            vertices: [ { "x":0, "y":0 }, { "x":0, "y":10 }, { "x":75, "y":25 }, { "x":75, "y":15 } ] 
-        })
-        this.sensorL = this.scene.matter.add.sprite(0, 0, 'sensor', null, { 
-            isSensor: true, 
-            label: "sensorhit",
-            vertices: [ { "x":0, "y":15 }, { "x":0, "y":25 }, { "x":75, "y":10 }, { "x":75, "y":0 } ] 
-        })*/
     }
 
     finish(){
         this.action = 0;
+    }
+
+    attack(){
+        var offset = 40;
+        if(this.flipX){
+            offset = -40
+        }
+        new Boom ({
+            scene: this.scene,
+            key: 'explo',
+            x: this.x + offset,
+            y: this.y -40,
+            frame: null,
+            anim: "Explosion",
+            option: {
+                isSensor: true,
+                isStatic: true, 
+                label: "boom",
+                vertices: [{x:40, y:40}, {x:40, y:244}, {x:196, y:244}, {x:196, y:40}]
+            },
+            sound: "shock_sfx",
+            type: 0
+        });
     }
 
     hit(damage){
@@ -44,9 +56,6 @@ export default class Heavy extends Phaser.Physics.Matter.Sprite {
 
     kill() {
         var invert = true;
-        //this.sensorR.destroy();
-        //this.sensorL.destroy();
-        this.shock.destroy();
         this.scene.enemies.remove(this);
         if(this.target.x > this.x){
             invert = false;
@@ -64,9 +73,10 @@ export default class Heavy extends Phaser.Physics.Matter.Sprite {
                 collisionFilter: { category: 0x0002, mask: 0x0001 },
                 vertices: [ { "x":24, "y":34 },  { "x":24, "y":131 }, { "x":129, "y":131 }, { "x":129, "y":34 } ]
             },
-            sound: "death_sfx",
+            sound: "heavy_death_sfx",
             jump: 0,
             dir: 0,
+            ang: 0,
             flip: invert,
             player: false,
         });
@@ -79,20 +89,6 @@ export default class Heavy extends Phaser.Physics.Matter.Sprite {
                 this.dist = Math.abs(this.target.x - this.x);
                 this.height = Math.abs(this.target.y - this.y);
             }
-
-            /*this.sensorL.y = this.y - 20
-            this.sensorR.y = this.y - 20
-            if(this.attackL){
-                this.sensorL.x = this.x - 65
-            } else {
-                this.sensorL.x = this.x
-            }
-
-            if(this.attackR){
-                this.sensorR.x = this.x + 65
-            } else {
-                this.sensorR.x = this.x
-            }*/
             
             if(this.action == 0){
                 
@@ -129,12 +125,7 @@ export default class Heavy extends Phaser.Physics.Matter.Sprite {
                 this.jump = true;
                 this.scene.time.delayedCall(500, this.finish, [], this);
             }
-            this.shock.y = this.y + 60
-            if(this.flipX){
-                this.shock.x = this.x -40
-            } else {
-                this.shock.x = this.x +40
-            }
+            
         } else {
             return;
         }

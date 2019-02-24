@@ -1,10 +1,16 @@
 import Death from './Death.js';
+import Grenade from './Grenade.js';
+
 export default class Player extends Phaser.Physics.Matter.Sprite {
     constructor(config) {
         super(config.scene.matter.world, config.x, config.y, config.key, config.frame, config.option);
         config.scene.add.existing(this);
+        this.complete = false;
         this.energy = 100;
         this.ammo = 90;
+        this.grenade = 3;
+        this.unlocked = false;
+        this.gl = true;
         this.firerate = 100;
         this.walkgo = true;
         this.jumpgo = true;
@@ -40,21 +46,23 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     }
 
     hit(damage, dir) {
-        this.energy -= damage;
-        if(this.energy <= 0){
-            this.alive = false;
-            if(this.x > dir){
-                this.kill(-5);
-            } else {
-                this.kill(5);
-            }
-        } /*else {
-            if(energy < damage){
-                energy = 0;
-            } else {
-                this.energy -= damage;
-            }
-        }*/
+        if(this.alive){
+            this.energy -= damage;
+            if(this.energy <= 0){
+                this.alive = false;
+                if(this.x > dir){
+                    this.kill(5);
+                } else {
+                    this.kill(-5);
+                }
+            } /*else {
+                if(energy < damage){
+                    energy = 0;
+                } else {
+                    this.energy -= damage;
+                }
+            }*/
+        }
     }
 
     kill(dirs) {
@@ -78,15 +86,21 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
                 label: "pdead",
                 collisionFilter: { category: 0x0002, mask: 0x0001 }
             },
-            sound: "death_sfx",
+            sound: "pdeath_sfx",
             jump: 0,
             dir: dirs,
+            ang: 0,
             flip: invert,
             player: true,
         });
         this.scene.cameras.main.stopFollow();
-        this.scene.cameras.main.startFollow(dead, true, 0.08, 0.08);
-        this.destroy();
+        //this.scene.cameras.main.startFollow(dead, true, 0.08, 0.08);
+        this.setVelocityX(0);
+        this.setVelocityY(0)
+        this.setSensor(true);
+        this.setIgnoreGravity(true);
+        this.setAlpha(0);
+        //this.destroy(); this is buggy
     }
 
     shiftEvent(){
@@ -102,12 +116,23 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
         this.fire = true;
     }
 
+    glEvent(){
+        
+        this.gl = true;
+    }
+
+
     walk(){
         this.walkgo = true;
     }
 
     update(keys) {
-        if(this.alive){
+        
+        if(this.alive && !this.complete){
+            if(this.y > 900){
+                this.hit(200, this.x)
+                this.alive = false;
+            }
             this.gun.y = this.y - 25;
             
             this.head.y = this.y - 38;
@@ -242,10 +267,41 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
             } else {
                 this.flash.setAlpha(0);
             }
+
+            if (this.scene.game.input.activePointer.buttons == 2 && this.scene.game.input.activePointer.isDown && this.grenade > 0 && this.unlocked) {
+                var gunx = this.gun.x + ((55) * Math.cos(rad) - (bulletY) * Math.sin(rad));
+                var guny = this.gun.y + ((55) * Math.sin(rad) + (bulletY) * Math.cos(rad));
+                
+                if(this.gl){
+                    this.gl = false;
+                    this.grenade -= 1
+                    var nade = new Grenade({
+                        scene: this.scene,
+                        x: gunx,
+                        y: guny,
+                        key: "grenade",
+                        frame: null,
+                        option: {
+                            isSensor: true, label: "nade"
+                        }
+                    })
+                    nade.setDepth(12);
+                    if (nade) {
+                        nade.setAngle(this.gun.angle);
+                        nade.thrust(0.008);
+                    }
+                    this.scene.sound.add('launcher_sfx').play();
+                    this.scene.time.delayedCall(1000, this.glEvent, [], this);
+                }
+            }
             
             this.head.flipY = gunflip;
             this.gun.flipY = gunflip;
             this.flipX = gunflip
+        } else if(this.complete){
+            this.anims.play("PlayerStand", true);
+            this.setVelocityX(0);
+            this.setVelocityY(0);
         }
     }
 }

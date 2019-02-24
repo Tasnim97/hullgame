@@ -1,6 +1,7 @@
 import Death from './Death.js';
 import Attack from './Attack.js';
 import Hit from './Hit.js';
+import Gib from './Gib.js';
 
 export default class Enemy extends Phaser.Physics.Matter.Sprite {
     constructor(config) {
@@ -11,7 +12,7 @@ export default class Enemy extends Phaser.Physics.Matter.Sprite {
         this.setDepth(9);
         this.setFixedRotation(true);
         this.target = config.scene.player;
-        this.scene.sound.add('spawn_sfx').play();
+        //this.scene.sound.add('spawn_sfx').play();
         this.action = 0;
         this.attackL = false;
         this.attackR = false;
@@ -57,6 +58,35 @@ export default class Enemy extends Phaser.Physics.Matter.Sprite {
         this.action = 0;
     }
 
+    gib(x,y){
+        this.health -= 200;
+        this.attack.destroy();
+        this.sensorR.destroy();
+        this.sensorL.destroy();
+        this.scene.enemies.remove(this);
+        for(var i = 0; i < 25; ++i){
+            var rx = Math.floor(Math.random() * 50)
+            var ry = Math.floor(Math.random() * 50)
+            
+            new Gib ({
+                scene: this.scene,
+                key: 'gib',
+                x: this.x + rx,
+                y: this.y + ry,
+                frame: null,
+                option: {
+                    isStatic: false, 
+                    label: "gib",
+                    collisionFilter: { category: 0x0002, mask: 0x0001 }
+                },
+                tarx: x,
+                tary: y-120
+            });
+            
+        }
+        this.destroy();
+    }
+
     hit(damage){
         this.health -= damage;
         if(this.health <= 0){
@@ -67,9 +97,9 @@ export default class Enemy extends Phaser.Physics.Matter.Sprite {
             this.action = 2;
             if(this.flipX)
             {
-                this.setVelocityX(5);
+                this.setVelocityX(0);
             } else {
-                this.setVelocityX(-5);
+                this.setVelocityX(0);
             }
         }
     }
@@ -100,6 +130,7 @@ export default class Enemy extends Phaser.Physics.Matter.Sprite {
             sound: "death_sfx",
             jump: 5,
             dir: speed,
+            ang: 0,
             flip: invert,
             player: false,
         });
@@ -124,7 +155,7 @@ export default class Enemy extends Phaser.Physics.Matter.Sprite {
             } else {
                 this.sensorR.x = this.x
             }
-            if(this.target.alive){
+            if(this.target.alive && !this.target.complete){
                 if(Math.abs(Math.floor(this.body.velocity.y)) > 1 && this.action != 2){
                     this.setVelocityX(0);
                     this.anims.play("EnemyJump", true);

@@ -28,6 +28,15 @@ class BootScene extends Phaser.Scene {
         this.load.audio('soundtrack', [ 
             'assets/sound/soundtrack.mp3'
         ]);
+        this.load.audio('ammo_sfx', [
+            'assets/sound/ammo.wav'
+        ]);
+        this.load.audio('heavy_death_sfx', [ 
+            'assets/sound/heavydeath.wav'
+        ]);
+        this.load.audio('pdeath_sfx', [ 
+            'assets/sound/pdeath.wav'
+        ]);
         this.load.audio('death_sfx', [ 
             'assets/sound/death.wav'
         ]);
@@ -36,6 +45,12 @@ class BootScene extends Phaser.Scene {
         ]);
         this.load.audio('fire_sfx', [
             'assets/sound/fire.wav'
+        ]);
+        this.load.audio('launcher_sfx', [
+            'assets/sound/launcher.wav'
+        ]);
+        this.load.audio('upgrade_sfx', [
+            'assets/sound/upgrade.wav'
         ]);
         this.load.audio('move_sfx', [
             'assets/sound/move.wav'
@@ -52,19 +67,35 @@ class BootScene extends Phaser.Scene {
         this.load.audio('estop_sfx', [
             'assets/sound/elevator_stop.wav'
         ]);
+        this.load.audio('shock_sfx', [
+            'assets/sound/shockwave.wav'
+        ]);
         this.load.image("cross", "assets/cross.png");
         this.load.image("lift", "assets/lift.png");
         this.load.image("rail", "assets/rail.png");
         this.load.image("box", "assets/box.png");
+        this.load.image("barrel", "assets/barrel.png");
         this.load.image('bottom', 'assets/bottom.png');
         this.load.image('bg', 'assets/bg.png');
         this.load.image("tile2", "assets/tile2.png");
         this.load.image("muzzleflash", "assets/star.png");
         this.load.image("gun", "assets/gun.png");
         this.load.image('bullet', "assets/bullet.png");
+        this.load.image('orb', "assets/orb.png");
         this.load.image("head", "assets/head.png");
         this.load.image("sensor", "assets/sensor.png");
         this.load.image("spawn", "assets/spawn.png");
+        this.load.image("gib", "assets/gib.png");
+        this.load.image("ammo", "assets/ammo.png");
+        this.load.image("grenade", "assets/grenade.png");
+        this.load.image("launcher", "assets/launcher.png");
+        this.load.image("door", "assets/door.png");
+        this.load.image("restart", "assets/restart.png");
+        this.load.image("complete", "assets/complete.png");
+        //this.load.image("gib", "assets/gib.png");
+        this.load.spritesheet("explo", "assets/animations/explo.png", { frameWidth: 118, frameHeight: 122 });
+        this.load.spritesheet("fly", "assets/animations/fstrip.png", { frameWidth: 58, frameHeight: 58 });
+        this.load.spritesheet("flydead", "assets/animations/fdead.png", { frameWidth: 58, frameHeight: 58 });
         this.load.spritesheet("heavy", "assets/animations/hstrip.png", { frameWidth: 160, frameHeight: 160 });
         this.load.spritesheet("shock", "assets/animations/shock.png", { frameWidth: 48, frameHeight: 56 });
         this.load.spritesheet("player", "assets/animations/strip.png", { frameWidth: 73, frameHeight: 106 });
